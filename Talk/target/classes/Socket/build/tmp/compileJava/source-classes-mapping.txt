@@ -1,0 +1,12 @@
+com/example/service/ExampleHandlerService2.java
+ com.example.service.ExampleHandlerService2
+com/example/AppServer.java
+ com.example.AppServer
+com/example/dto/SimpleDto2.java
+ com.example.dto.SimpleDto2
+com/example/client/ExampleClient.java
+ com.example.client.ExampleClient
+com/example/server/ExampleServer2.java
+ com.example.server.ExampleServer2
+com/example/AppClient.java
+ com.example.AppClient
