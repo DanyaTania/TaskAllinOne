@@ -33,6 +33,7 @@ public class LexemeAlphabeticalPrinter {
             entry.getValue().sort(Comparator.naturalOrder());
             if (!entry.getValue().isEmpty()) {
                 logger.log(Level.INFO, entry.getKey() + " " + entry.getValue());
+
             }
         }
     }

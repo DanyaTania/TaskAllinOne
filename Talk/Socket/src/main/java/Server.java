@@ -1,15 +1,21 @@
 //package main.java;
 
-import com.example.dto.TextReader;
-import texthandler.chainparser.TextParser;
+import texthandler.chainparser.LexemeParser;
+import texthandler.chainparser.ParagraphParser;
+import texthandler.chainparser.SentenceParser;
+import texthandler.entity.TextComponent;
+import texthandler.entity.TextComposite;
 import texthandler.exception.InitializationException;
 
 import java.io.*;
 import java.net.*;
-import java.util.LinkedList;
-import java.util.List;
+import java.security.cert.CertificateRevokedException;
+import java.util.*;
 
+import static java.util.Collections.unmodifiableList;
 import static org.apache.commons.lang3.math.NumberUtils.isNumber;
+import static texthandler.entity.ComponentType.LEXEME;
+import static texthandler.entity.ComponentType.TEXT;
 
 /**
  * проект реализует консольный многопользовательский чат.
@@ -18,7 +24,47 @@ import static org.apache.commons.lang3.math.NumberUtils.isNumber;
  * @version 2.0
  */
 
+class Logout implements Externalizable{
+        //Externalizable {
+    boolean[] index=null;
 
+   // private String logout;
+
+    public Logout(boolean[] index) {
+        //this.logout = logout;
+        this.index=new boolean[index.length];
+        for (int i=0;i<index.length;i++)
+        {this.index[i] = index[i];}
+        //this.password = password;
+    }
+
+    public  void setIndex(boolean[] index){
+        this.index=new boolean[index.length];
+        for (int i=0;i<index.length;i++)
+        {this.index[i] = index[i];}
+
+    }
+    public boolean[] getIndex(){
+        return index;
+    }
+    public  Logout() {
+    }
+
+@Override
+public String toString() {
+       // return  logout;
+        return null;}
+
+@Override
+public void writeExternal(ObjectOutput out) throws IOException {
+        out.writeObject(index);
+        }
+
+@Override
+public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+   index = (boolean[]) in.readObject();
+        }
+        }
 
 class ServerSomthing extends Thread {
     public static Object Text;
@@ -98,15 +144,13 @@ i++;
                 out.flush(); // flush() нужен для выталкивания оставшихся данных
                 // если такие есть, и очистки потока для дьнейших нужд
             } catch (IOException ignored) {}
+            boolean notStop=true;
             try {
-                while (true) {boolean isStart=false;
+                while (notStop) {boolean isStart=false;
                     word = in.readLine();//считываем continue
                   if (word.contains("continue")){
 
                   word = in.readLine();
-
-
-
 
                   out.write(word+" Lets go!!!\n");
                       ObjectInputStream in2 = new ObjectInputStream(new FileInputStream("Externals.out"));
@@ -114,10 +158,209 @@ i++;
                       taskNumber.setTask(Integer.parseInt((in2.readObject()).toString()));
                       in2.close();
                       out.write(taskNumber.getTask() +" задание");//в taskNumber номер задания
-                    if(taskNumber.getTask()==3) {
-                         //TextParser textParser=new TextParser(Text.toString().split(""));
-                         out.write(Text.toString().toUpperCase()+"<>");
-                     }
+
+                      int subTask=taskNumber.getTask();
+
+                      //ParagraphParser paragraphParser;//разбиваем на предложения
+                    //  SentenceParser sentenceParser;//разбиваем на слова
+                    //  LexemeParser lexemeParser;
+                  //    Map<String,Integer> map=new HashMap<String,Integer>();//для хранения частей текста
+                   //   ArrayList<TextComponent> arrayList;// анализируемый текст в arrayList
+                  //    String result="";
+                     // Set<String> objectsIds = new HashSet<>();
+
+
+                      ParagraphParser paragraphParser;
+                      paragraphParser = new ParagraphParser();//разбиваем на предложения
+
+                      ArrayList<TextComponent> arrayList;// анализируемый текст, разбитый на предложения, в arrayList
+                      arrayList = paragraphParser.parse(Text.toString(), new TextComposite(LEXEME)).getComponents();
+
+
+//switch (subTask){
+  //  case 1: //{
+    if (subTask==1) {                     //TextParser textParser=new TextParser(Text.toString().split(""));
+        out.write(Text.toString().toUpperCase() + "<>");
+        }
+     /***************************************************************************************************/
+
+        /* 2 задание из 16     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!**************************             */
+      //Вывести все предложения заданного текста в порядке возрастания количества слов в каждом из них
+
+     /***************************************************************************************************/
+
+
+    if (taskNumber.getTask()==2) {
+    //    paragraphParser = new ParagraphParser();//разбиваем на предложения
+        Map<String,Integer> map=new HashMap<String,Integer>();//для хранения частей текста
+      //  ArrayList<TextComponent> arrayList;// анализируемый текст в arrayList
+       // arrayList = paragraphParser.parse(Text.toString(), new TextComposite(LEXEME)).getComponents();
+        SentenceParser sentenceParser;//разбиваем на слова
+        for (TextComponent sentence : arrayList) {
+            sentenceParser = new SentenceParser();
+
+            map.put(sentence.toString(), sentenceParser.parse(sentence.toString(), new TextComposite(LEXEME)).getComponents().size());
+
+        }
+        String result="";
+        result = sortByComparator(map).keySet().toString().replace("[", "");
+        result = result.replace("]", "");
+        out.write("\n Words in order:"+result+"\n\n");
+    }
+ /*************************************************************************************************/
+
+ /* 3 задание из 16     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!**************************             */
+ //      Найти такое слово в первом предложении, которого нет ни в одном из остальных предложений
+
+
+ /***************************************************************************************************/
+
+    //case 3: (subTask=2)
+    if (taskNumber.getTask()==3) {
+        //int count = 0;
+       // ParagraphParser paragraphParser;
+      //  paragraphParser = new ParagraphParser();//разбиваем на предложения
+
+        //ArrayList<TextComponent> arrayList;// анализируемый текст в arrayList
+        //arrayList = paragraphParser.parse(Text.toString(), new TextComposite(LEXEME)).getComponents();
+
+
+        Iterator<TextComponent> iter = arrayList.iterator();
+        SentenceParser sentenceParser;//разбиваем на слова
+        sentenceParser = new SentenceParser();
+
+        ArrayList<TextComponent> FirstSentence=new ArrayList<>();
+        if (iter.hasNext()) {
+            FirstSentence = sentenceParser.parse(iter.next().toString(), new TextComposite(TEXT)).getComponents();
+        }
+
+
+        HashSet<String>  differentWordsInFirstSentence = new HashSet<>();
+                for (TextComponent words:FirstSentence){
+                differentWordsInFirstSentence.add(words.toString());
+                }
+
+       // out.write("\n++" + differentWordsInFirstSentence.toString() + "**\n");
+        HashSet<String>  differentWordsInOtherSentences = new HashSet<>();
+        while (iter.hasNext()) {
+            ArrayList<TextComponent> NextSentence = sentenceParser.parse(iter.next().toString(), new TextComposite(TEXT)).getComponents();
+         // в NextSentence очередное предложение
+            ArrayList<String> wordsInNextSentence = new ArrayList<>();
+
+            for (TextComponent words : NextSentence) {
+                differentWordsInOtherSentences.add(words.toString());
+            }
+        }
+
+
+
+            for (String words : differentWordsInOtherSentences) {
+
+                for (Iterator<String> iter2 = differentWordsInFirstSentence.iterator(); iter2.hasNext();) {
+
+                        if (iter2.next().contains(words))
+                        {
+                            iter2.remove();
+                            break;
+                        }
+
+                    }
+
+            }
+
+            String result=differentWordsInFirstSentence.toString().replace("[", "");
+        result = result.replace("]", "");
+
+
+        out.write("\n different words:"+ result+"\n");
+
+
+    }
+
+  /***************************************************************************************************/
+
+ /* 4 задание из 16     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!**************************             */
+
+ //Во всех вопросительных предложениях текста найти и напечатать без повторений слова заданной длины
+   /***************************************************************************************************/
+
+if (taskNumber.getTask()==4) {
+    HashSet<String> differentSentencesWithQuestionSign = new HashSet<>();
+
+    //  out.write(arrayList.toString());
+    SentenceParser sentenceParser;//разбиваем на слова
+    for (TextComponent sentence : arrayList) {
+        if (sentence.toString().contains("?")) {
+            sentenceParser = new SentenceParser();//вопросительные несовпадающие предложнеия складываем в мэп: предложение+ его длина (количество слов)
+
+            differentSentencesWithQuestionSign.add(sentence.toString());//sentenceParser.parse(sentence.toString(), new TextComposite(LEXEME)).getComponents().toString());
+
+        }
+    }
+    out.write(differentSentencesWithQuestionSign.toString());
+   sentenceParser = new SentenceParser();
+
+
+    //разбиваем на неповторяюшиеся слова и складываем в мэп: слово его, длина
+    int lengthOfWord = 7;//задаем длинну слов, которые нужно вывести
+
+    HashMap<String,Integer> differentWords = new HashMap<>();
+
+    for (Iterator<String> iter = differentSentencesWithQuestionSign.iterator(); iter.hasNext(); ) {
+         String st = iter.next().toString();
+
+        ArrayList<TextComponent> wordsInSentence = new ArrayList<>();
+
+        wordsInSentence =  sentenceParser.parse(st, new TextComposite(TEXT)).getComponents();
+
+        for (TextComponent words: wordsInSentence) {
+            out.write("\nqqq "+words+" zz \n"+words.toString().length());
+
+                differentWords.put(words.toString(),words.toString().length()-1);
+              //  out.write(differentWords.toString());
+
+
+        }
+
+    }
+    out.write("\njjj" + differentWords.toString() + "\n");
+    String result = sortByComparator(differentWords).keySet().toString().replace("[", "");
+    result = result.replace("]", "");
+    out.write("\n Words in order with lengths:"+result+"\n\n");
+}
+   /***************************************************************************************************/
+  /*  case 6:
+     /*   paragraphParser=new ParagraphParser();
+        LexemeAlphabeticalPrinter lexemeAlphabeticalPrinter=new LexemeAlphabeticalPrinter();
+lexemeAlphabeticalPrinter.lexemeAlphabeticalPrinter(paragraphParser.parse(Text.toString(), new TextComposite(LEXEME)));
+*/
+ /*   case  7:
+        lexemeParser=new LexemeParser();
+        ArrayList<TextComponent> wordsOfFirstSentence2=lexemeParser.parse(Text.toString(), new TextComposite(TEXT)).getComponents();
+      //  out.write(wordsOfFirstSentence2.toString());
+
+
+            default:
+                */
+                out.write("\n********************** \n Should you continue? (yes/no)\n*************\n");
+
+
+       // notStop=false;
+
+       // }
+
+
+                      }
+
+                    out.write(word+"<><><><><>");
+                    if (word.contains("yes")) {
+/*!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                        /*Logout logout=new Logout("yes");//result синтаксичесого анализа можно передать
+                        ObjectOutputStream out2 = new ObjectOutputStream(new FileOutputStream("Externals.out"));
+                        out2.writeObject(logout);
+
+                        out2.close();
+*/
 
                   isStart=true;  }
 
@@ -144,7 +387,43 @@ i++;
             this.downService();
         }
     }
-    
+
+    public static int[] compareTwoLists(ArrayList list, ArrayList list2){
+        int[] res=new int[list2.size()];
+        for(int i = 0; i < list.size(); i++){
+            for(int j = 0; j < list.size(); j++){
+                if(list.get(i).equals(list2.get(j)) == true){
+                    res[j]=Integer.MAX_VALUE;
+                    //System.out.println("Элемент " + i +
+                      //      " первого массива равен элементу " + j + " второго массива.");
+                }else{ if (res[j]!=Integer.MAX_VALUE) res[j]=j;
+                    continue;
+
+                    //System.out.println("Элемент " + i +
+                      //      " первого массива не равен элементу " + j + " второго массива.");
+                }
+            }
+        }
+    return res;}
+    private Map<String, Integer> sortByComparator(Map<String, Integer> unsortMap) {
+
+            List<Map.Entry<String, Integer>> list = new LinkedList<Map.Entry<String, Integer>>(
+                    unsortMap.entrySet());
+
+            Collections.sort(list, new Comparator<Map.Entry<String, Integer>> () {
+                public int compare(Map.Entry<String, Integer> o1, Map.Entry<String, Integer> o2) {
+                    return o1.getValue().compareTo(o2.getValue());
+                }
+            });
+
+            HashMap<String, Integer> sortedMap = new LinkedHashMap<String, Integer>();
+            for (Map.Entry<String, Integer> entry : list) {
+                sortedMap.put(entry.getKey(), entry.getValue());
+            }
+            return sortedMap;
+        }
+
+
     /**
      * отсылка одного сообщения клиенту по указанному потоку
      * @param msg
@@ -246,7 +525,7 @@ public class Server {
     public static LinkedList<ServerSomthing> serverList = new LinkedList<>(); // список всех нитей - экземпляров
     // сервера, слушающих каждый своего клиента
     private static Story story; // история переписки
-    private final static String pathFile = "E://new_doc//Java//Talk//Socket//src//main//resources//resource.txt";
+    private final static String pathFile = path+"//"+file;//E://new_doc//Java//Talk//Socket//src//main//resources//resource.txt";
     private String taskNumber;
 
     /**

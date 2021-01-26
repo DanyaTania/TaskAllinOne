@@ -1,7 +1,6 @@
 import java.net.*;
 import java.io.*;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 
 import com.example.AppClient;
@@ -9,12 +8,10 @@ import com.example.client.ExampleClient;
 
 //import com.example.dto.SimpleDto;
 import com.example.dto.SimpleDto2;
-import com.example.dto.TextReader;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 
 import static java.util.Objects.requireNonNull;
 import static org.apache.commons.io.FileUtils.readFileToString;
@@ -30,6 +27,7 @@ class TaskNumber implements Serializable{
     public static int getTask(){
         return task;
     }
+
 }
 class Logon implements Externalizable {
     private String login;
@@ -55,6 +53,7 @@ class Logon implements Externalizable {
         login = (String) in.readObject();
     }
 }
+
 class ClientSomthing {
     
     private Socket socket;
@@ -63,11 +62,10 @@ class ClientSomthing {
     private BufferedReader inputUser; // поток чтения с консоли
     private String addr; // ip адрес клиента
     private int port; // порт соединения
-    private String doParsing; // имя клиента
+    private String doParsing; // выполнять ли синтаксический анализ, можно в булен переделать
     private Date time;
     private String dtime;
     private SimpleDateFormat dt1;
-
 
 
     /**
@@ -90,7 +88,7 @@ class ClientSomthing {
             inputUser = new BufferedReader(new InputStreamReader(System.in));
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-            this.pressdoParsing(); // перед началом необходимо спросит имя
+            this.pressdoParsing(); // перед началом необходимо спросить делать ли синтаксический аналаз
             new ReadMsg().start(); // нить читающая сообщения из сокета в бесконечном цикле
             new WriteMsg().start(); // нить пишущая сообщения в сокет приходящие с консоли в бесконечном цикле
         } catch (IOException e) {
@@ -111,7 +109,17 @@ class ClientSomthing {
         System.out.print("Good day! Should you do a synstaxic text analysis (yes/no)?");
         try {
             doParsing = inputUser.readLine();
-            if(doParsing.contains("yes")){
+         if (!doParsing.contains("yes")) {
+             ObjectInputStream in2 = new ObjectInputStream(new FileInputStream("Externals.out"));
+             ClientSomthing.DoParsing doParsing=new DoParsing((in2.readObject()).toString());
+
+
+             out.write(String.valueOf(doParsing.getDoParsing())+"::::::");
+
+             in2.close();
+         }
+
+            if(doParsing.toLowerCase().contains("yes")){
             out.write(" Let's start"+  "\n"+"Type the number:\n"+
 
                                 "1\n"+
@@ -149,10 +157,11 @@ class ClientSomthing {
                                 "16 \n"+
                                 "В некотором предложении текста слова заданной длины заменить указанной  подстрокой, длина которой может не совпадать с длиной слова.\n"+"continue"+"\n !");
 
+
             }
             else{out.write(" Bye"+  "\n");}
             out.flush();
-        } catch (IOException ignored) {
+        } catch (IOException | ClassNotFoundException ignored) {
         }
         
     }
@@ -215,7 +224,8 @@ Logon taskN=new Logon(userWord);
                         out2.close();
 
 
-                        out.write("task:"+userWord );}
+                       // out.write("task:"+userWord );
+                    }
                     if (userWord.equals("no")) {
                         out.write("stop" + "\n");
                         ClientSomthing.this.downService(); //
@@ -226,12 +236,59 @@ Logon taskN=new Logon(userWord);
 
 
                     out.flush(); // чистим
+
+
                 } catch (IOException e) {
                     ClientSomthing.this.downService(); // в случае исключения тоже харакири
                     
                 }
-                
+                ObjectInputStream in2 = null;
+
+                try {
+                    in2 = new ObjectInputStream(new FileInputStream("Externals.out"));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                DoParsing doParsing= null;
+                try {
+                    doParsing = new DoParsing((in2.readObject()).toString());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (ClassNotFoundException e) {
+                    e.printStackTrace();
+                }
+
+
+                try {
+                    out.write(String.valueOf(doParsing.getDoParsing())+"::::::");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                try {
+                    in2.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
             }
+        }
+    }
+
+    public class DoParsing {
+        private boolean doParsing=false;//yes=no;
+        public DoParsing(){}
+        public  DoParsing(String str){
+            if (str.contains("yes")){this.doParsing=true;}
+
+        }
+
+        public boolean getDoParsing(){
+            return doParsing;
+        }
+
+        public void setDoParsing(boolean doParsing){
+            this.doParsing=doParsing;
         }
     }
 }

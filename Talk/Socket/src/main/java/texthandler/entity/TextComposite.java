@@ -8,6 +8,10 @@ public class TextComposite implements TextComponent {
     private ComponentType componentType;
     private ArrayList<TextComponent> components = new ArrayList<>();
 
+    //public ArrayList<TextComponent> getComponents(){
+
+    //}
+
     public TextComposite(ComponentType componentType) {
         this.componentType = componentType;
     }
