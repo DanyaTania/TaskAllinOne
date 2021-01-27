@@ -23,7 +23,7 @@ import static texthandler.entity.ComponentType.TEXT;
  * @author izotopraspadov, the tech
  * @version 2.0
  */
-
+/*
 class Logout implements Externalizable{
         //Externalizable {
     boolean[] index=null;
@@ -65,7 +65,7 @@ public void readExternal(ObjectInput in) throws IOException, ClassNotFoundExcept
    index = (boolean[]) in.readObject();
         }
         }
-
+*/
 class ServerSomthing extends Thread {
     public static Object Text;
     //public     String Text="";
@@ -146,42 +146,106 @@ i++;
             } catch (IOException ignored) {}
             boolean notStop=true;
             try {
-                while (notStop) {boolean isStart=false;
+                while (notStop) {
+                    boolean isStart = false;
                     word = in.readLine();//считываем continue
-                  if (word.contains("continue")){
+                    if (word.contains("continue")) {
 
-                  word = in.readLine();
+                        word = in.readLine();
 
-                  out.write(word+" Lets go!!!\n");
-                      ObjectInputStream in2 = new ObjectInputStream(new FileInputStream("Externals.out"));
-                      TaskNumber taskNumber = new TaskNumber();
-                      taskNumber.setTask(Integer.parseInt((in2.readObject()).toString()));
-                      in2.close();
-                      out.write(taskNumber.getTask() +" задание");//в taskNumber номер задания
+                        out.write(word + " Lets go!!!\n");
+                        ObjectInputStream in2 = new ObjectInputStream(new FileInputStream("Externals.out"));
+                        TaskNumber taskNumber = new TaskNumber();
+                        taskNumber.setTask(Integer.parseInt((in2.readObject()).toString()));
+                        in2.close();
+                        out.write(taskNumber.getTask() + " задание");//в taskNumber номер задания
 
-                      int subTask=taskNumber.getTask();
+                        int subTask = taskNumber.getTask();
 
-                      //ParagraphParser paragraphParser;//разбиваем на предложения
-                    //  SentenceParser sentenceParser;//разбиваем на слова
-                    //  LexemeParser lexemeParser;
-                  //    Map<String,Integer> map=new HashMap<String,Integer>();//для хранения частей текста
-                   //   ArrayList<TextComponent> arrayList;// анализируемый текст в arrayList
-                  //    String result="";
-                     // Set<String> objectsIds = new HashSet<>();
-
-
-                      ParagraphParser paragraphParser;
-                      paragraphParser = new ParagraphParser();//разбиваем на предложения
-
-                      ArrayList<TextComponent> arrayList;// анализируемый текст, разбитый на предложения, в arrayList
-                      arrayList = paragraphParser.parse(Text.toString(), new TextComposite(LEXEME)).getComponents();
+                        //ParagraphParser paragraphParser;//разбиваем на предложения
+                        //  SentenceParser sentenceParser;//разбиваем на слова
+                        //  LexemeParser lexemeParser;
+                        //    Map<String,Integer> map=new HashMap<String,Integer>();//для хранения частей текста
+                        //   ArrayList<TextComponent> arrayList;// анализируемый текст по предложениям в arrayList
+                        //    String result="";
+                        // Set<String> objectsIds = new HashSet<>();
 
 
+                        ParagraphParser paragraphParser;
+                        paragraphParser = new ParagraphParser();//разбиваем на предложения
+
+                        ArrayList<TextComponent> arrayList;// анализируемый текст, разбитый на предложения, в arrayList
+                        arrayList = paragraphParser.parse(Text.toString(), new TextComposite(LEXEME)).getComponents();
+
+ /***************************************************************************************************/
+
+   /* 1 задание из 16     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!**************************             */
+  //Найти наибольшее количество предложений текста, в которых есть одинаковые слова
+
+
+   /***************************************************************************************************/
 //switch (subTask){
-  //  case 1: //{
-    if (subTask==1) {                     //TextParser textParser=new TextParser(Text.toString().split(""));
-        out.write(Text.toString().toUpperCase() + "<>");
-        }
+                        //  case 1: //{
+                        if (subTask == 1) {                     //TextParser textParser=new TextParser(Text.toString().split(""));
+
+                            HashSet<TextComponent> differentSentences = new HashSet<>();//множество различных предложений в тексте
+                            HashMap<String, Integer> sentencesWithRepeatedWords = new HashMap<>();
+                        //    sentencesWithRepeatedWords=null;
+                            //  out.write(arrayList.toString());
+                            SentenceParser sentenceParser;//разбиваем на слова
+                            for (TextComponent sentence : arrayList) {
+
+                                sentenceParser = new SentenceParser();// предложнеия складываем в  HashSet: исключаются дублируюшиеся
+
+                                differentSentences.add(sentence);//sentenceParser.parse(sentence.toString(), new TextComposite(LEXEME)).getComponents().toString());
+
+
+                            }
+                            out.write(differentSentences + "differentSentences\n");
+                            //   out.write(differentSentences.toString());
+                            sentenceParser = new SentenceParser();
+
+
+                            //разбиваем на неповторяюшиеся слова, если количество слов во множестве неповторяющихся слов меньше, чем в предложении,
+                            //значит в предложении есть неповторяющиеся слова, помечаем эти предложения, сохраняя в значении мэпа число-количество слов в предложении
+
+
+                            for (Iterator<TextComponent> iter = differentSentences.iterator(); iter.hasNext(); ) {
+                                TextComponent sentence = iter.next();
+
+                                ArrayList<TextComponent> wordsInSentence = new ArrayList<>();
+                                HashSet<String> differentWordsInSentence = new HashSet<>();
+                                wordsInSentence = sentenceParser.parse(sentence.toString(), new TextComposite(TEXT)).getComponents();//слова в одном предложении
+                                //если мы их добавим в hashSet, то дублирующиеся в предложении слова "исчезнут"
+                                //      out.write(wordsInSentence + "wordsInSentence\n");
+
+                                for (TextComponent words : wordsInSentence) {
+                                    differentWordsInSentence.add(words.toString().trim());
+                                }
+                                //      out.write(differentSentences + "differentSentences\n");
+
+                                //теперь можно сравнить
+
+                                if (differentWordsInSentence.size() < wordsInSentence.size()) {
+                                    sentencesWithRepeatedWords.put(wordsInSentence.toString(), wordsInSentence.size());
+                                }
+                              //  out.write("differentWordsInSentence.size():" + differentWordsInSentence.size() + "wordsInSentence.size()" + wordsInSentence.size() + "\n");
+                            }
+
+                            out.write(sentencesWithRepeatedWords+"sentencesWithRepeatedWords\n");
+
+                            int i=sentencesWithRepeatedWords.size()-1;//последний элемент в отсортированном по возрастанию множестве
+                 String result = sortByComparator(sentencesWithRepeatedWords).keySet().toArray()[i].toString();
+
+                           result=result.replace("[", "");
+                           result = result.replace("]", "");
+                            if (sentencesWithRepeatedWords!=null)
+                            {out.write("\n Sentence with the largest amount of repeated words :" + result + "\n\n");}
+                            else {out.write("We haven't any sentence with the largest amount of repeated words");}
+                    //out.write(Text.toString().toUpperCase() + "<>");
+
+                }
+
      /***************************************************************************************************/
 
         /* 2 задание из 16     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!**************************             */
@@ -217,7 +281,7 @@ i++;
 
     //case 3: (subTask=2)
     if (taskNumber.getTask()==3) {
-        //int count = 0;
+
        // ParagraphParser paragraphParser;
       //  paragraphParser = new ParagraphParser();//разбиваем на предложения
 
@@ -302,7 +366,7 @@ if (taskNumber.getTask()==4) {
 
 
     //разбиваем на неповторяюшиеся слова и складываем в мэп: слово его, длина
-    int lengthOfWord = 7;//задаем длинну слов, которые нужно вывести
+    int lengthOfWord = 7;//задаем длинну слов, которые нужно вывести !!!!!!!!! оформить, как запрос со стророны клиента
 
     HashMap<String,Integer> differentWords = new HashMap<>();
 
@@ -328,6 +392,40 @@ if (taskNumber.getTask()==4) {
     result = result.replace("]", "");
     out.write("\n Words in order with lengths:"+result+"\n\n");
 }
+/***************************************************************************************************/
+
+/* 5 задание из 16     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!**************************             */
+
+ //В каждом предложении текста поменять местами первое слово с последним, не изменяя длины предложения
+ /***************************************************************************************************/
+
+ if (taskNumber.getTask()==5) {
+
+
+      ArrayList<TextComponent> arrayList2=new ArrayList<>();// анализируемые слова из предложения в arrayList2
+     // arrayList = paragraphParser.parse(Text.toString(), new TextComposite(LEXEME)).getComponents();
+     SentenceParser sentenceParser;//разбиваем на слова
+     for (TextComponent sentence : arrayList) {
+         sentenceParser = new SentenceParser();//в листе sentenceParser слова
+         arrayList2=sentenceParser.parse(sentence.toString(), new TextComposite(LEXEME)).getComponents();
+         String sentenceReverced=arrayList2.toArray()[arrayList2.size()-1].toString();
+         for(int i=1;i<arrayList2.size()-1;i++){
+             sentenceReverced+=arrayList2.toArray()[i].toString();
+                      }
+         sentenceReverced+=arrayList2.toArray()[0].toString();
+         /*String temp; //v меняем 1 и последнее слово в предложении
+         temp=arrayList2.toArray()[0].toString();
+         out.write(temp+"temp\n");
+         arrayList2.toArray()[arrayList2.size()-1]=arrayList2.toArray()[0].toString();
+         out.write(arrayList2.toArray()[arrayList2.size()-1]+"temp\n");
+         arrayList2.toArray()[0]=temp;
+     String sentenceReverced= arrayList2.toString();*/
+     out.write(sentenceReverced+"dfd\n");
+     }
+
+
+    // out.write(arrayList + " ap\n");
+ }
    /***************************************************************************************************/
   /*  case 6:
      /*   paragraphParser=new ParagraphParser();

@@ -1,3 +1,3 @@
-line1: some ~ text qwerty? asasdadsads qqwwww  zzzzzz       aaaaaa. should be here.should be here.
-line2: another~ some text? should ~be here.~ a. a s~ d.
+line1: some ~ text some qwerty qew? asasdadsads qqwwww  zzzzzz       aaaaaa. should  be here be. should be here.
+line2: some another~ some text? should ~be here should.~ a. a s~ d.
 
